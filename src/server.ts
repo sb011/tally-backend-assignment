@@ -7,11 +7,11 @@ const swaggerDocument = require("../swagger.json");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { ZodError } = require("zod");
-
-const { userRouter } = require("./routes/user.routes");
-
-// Passport setup
-const passportSetup = require("./utils/OAuthConfig");
+const availabilityRoutes = require("./routes/availability.routes");
+const authRoutes = require("./routes/auth.routes");
+const meetingRoutes = require("./routes/meeting.routes");
+const cookieParser = require("cookie-parser");
+const authMiddleware = require("./middlewares/auth.middleware");
 
 // Express server setup and configure port
 const app = express();
@@ -20,12 +20,15 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
+app.use(cookieParser());
 
 // Set up swagger docs and UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
-app.use("/auth/google", userRouter);
+app.use("/api/auth", authRoutes);
+app.use("/api/availability", authMiddleware, availabilityRoutes);
+app.use("/api/meeting", authMiddleware, meetingRoutes);
 
 // Internal server error handler
 app.use((err: any, req: any, res: any, next: any) => {
