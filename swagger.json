@@ -1,13 +1,293 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "API",
-    "version": "1.0.0",
-    "description": "API"
+    "title": "Meeting API",
+    "description": "API for scheduling and managing meetings.",
+    "version": "1.0.0"
   },
-  "host": "localhost:3000",
-  "basePath": "/",
+  "basePath": "/api",
   "schemes": ["http", "https"],
   "consumes": ["application/json"],
-  "produces": ["application/json"]
+  "produces": ["application/json"],
+  "paths": {
+    "/auth/auth-url": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get the authentication URL.",
+        "description": "Returns the URL that users can use to authenticate and grant access to their calendar.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/auth/oauth2callback": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Authenticate the user and obtain the access token.",
+        "description": "Authenticate the user and obtain the access token using the authorization code obtained from the OAuth2 callback.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "The authorization code obtained from the OAuth2 callback.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string"
+                },
+                "token_type": {
+                  "type": "string"
+                },
+                "expires_in": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "refresh_token": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/availability": {
+      "get": {
+        "tags": ["Availability"],
+        "summary": "Get available time slots",
+        "description": "Returns an array of available time slots between the specified start and end dates.",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "The start date in ISO 8601 format (e.g. '2022-05-01T09:00').",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "The end date in ISO 8601 format (e.g. '2022-05-05T17:00').",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "end": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/meeting": {
+      "post": {
+        "tags": ["Meeting"],
+        "summary": "Create a new meeting",
+        "description": "Creates a new meeting with the specified details.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "The details of the meeting to create.",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "summary": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "startTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endTime": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "startTime": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endTime": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Meeting"],
+        "summary": "Get all meetings",
+        "description": "Returns an array of all meetings.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "startTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "endTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/meeting/{id}": {
+      "get": {
+        "tags": ["meeting"],
+        "summary": "Get a meeting by ID",
+        "description": "Returns a meeting with the specified ID.",
+        "operationId": "getMeetingById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the meeting to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The meeting with the specified ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "startTime": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "endTime": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Meeting not found."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  }
 }

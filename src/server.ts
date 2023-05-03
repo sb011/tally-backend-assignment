@@ -2,8 +2,8 @@
 require("dotenv").config();
 
 import express from "express";
-// import swaggerUi from "swagger-ui-express";
-// import swaggerDocument from "../swagger.json";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../swagger.json";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { ZodError } from "zod";
@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Set up swagger docs and UI
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use("/api/auth", authRoutes);

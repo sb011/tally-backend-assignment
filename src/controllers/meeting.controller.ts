@@ -1,6 +1,14 @@
 import meetingService from "../services/meeting.service";
 import { ZodError } from "zod";
 
+/**
+ * Route handler for the "/meeting" endpoint. Creates a new calendar event.
+ *
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ * @returns {object} - The newly created calendar event.
+ * @throws {Error} - If there is an error creating the calendar event.
+ */
 const setMeeting = async (req: any, res: any) => {
   try {
     const summary = req.body.summary as string;
@@ -24,6 +32,14 @@ const setMeeting = async (req: any, res: any) => {
   }
 };
 
+/**
+ * Route handler for the "/meeting" endpoint. Returns a list of calendar events.
+ *
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ * @returns {Array} - An array of calendar events.
+ * @throws {Error} - If there is an error retrieving the calendar events.
+ */
 const getMeeting = async (req: any, res: any) => {
   try {
     const event = await meetingService.getMeeting();
@@ -34,6 +50,14 @@ const getMeeting = async (req: any, res: any) => {
   }
 };
 
+/**
+ * Route handler for the "/meeting/:id" endpoint. Returns a calendar event by id.
+ *
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ * @returns {object} - A calendar event.
+ * @throws {Error} - If there is an error retrieving the calendar event.
+ */
 const getMeetingById = async (req: any, res: any) => {
   try {
     const id = req.params.id as string;
