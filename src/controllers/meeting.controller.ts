@@ -1,6 +1,7 @@
-const meetingService = require("../services/meeting.service");
+import meetingService from "../services/meeting.service";
+import { ZodError } from "zod";
 
-exports.setMeeting = async (req: any, res: any) => {
+const setMeeting = async (req: any, res: any) => {
   try {
     const summary = req.body.summary as string;
     const description = req.body.description as string;
@@ -15,11 +16,15 @@ exports.setMeeting = async (req: any, res: any) => {
     res.status(200).json(event);
   } catch (error) {
     console.error(error);
+    if (error instanceof ZodError) {
+      res.status(400).json({ error: error.issues });
+      return;
+    }
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-exports.getMeeting = async (req: any, res: any) => {
+const getMeeting = async (req: any, res: any) => {
   try {
     const event = await meetingService.getMeeting();
     res.status(200).json(event);
@@ -29,13 +34,23 @@ exports.getMeeting = async (req: any, res: any) => {
   }
 };
 
-exports.getMeetingById = async (req: any, res: any) => {
+const getMeetingById = async (req: any, res: any) => {
   try {
     const id = req.params.id as string;
     const event = await meetingService.getMeetingById(id);
     res.status(200).json(event);
   } catch (error) {
     console.error(error);
+    if (error instanceof ZodError) {
+      res.status(400).json({ error: error.issues });
+      return;
+    }
     res.status(500).json({ error: "Internal server error" });
   }
+};
+
+export = {
+  setMeeting,
+  getMeeting,
+  getMeetingById,
 };

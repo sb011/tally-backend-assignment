@@ -1,7 +1,6 @@
-// const { getAuthUrl, getAccessToken } = require("../utils/calendarConfig");
 import { getAuthUrl, getAccessToken } from "../utils/calendarConfig";
 
-exports.getAuthUrl = async () => {
+const authUrl = async () => {
   try {
     const authUrl = await getAuthUrl();
     return authUrl;
@@ -11,7 +10,7 @@ exports.getAuthUrl = async () => {
   }
 };
 
-exports.oauth2callback = async (code: any) => {
+const oauth2callback = async (code: any) => {
   try {
     const tokens = await getAccessToken(code);
     return tokens;
@@ -19,4 +18,9 @@ exports.oauth2callback = async (code: any) => {
     console.error(error);
     throw new Error("Unable to get tokens");
   }
+};
+
+export = {
+  authUrl,
+  oauth2callback,
 };

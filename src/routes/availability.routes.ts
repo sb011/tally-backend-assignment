@@ -1,9 +1,12 @@
-const router = require("express").Router();
-const availabilityController = require("../controllers/availability.controller");
+import { Router } from "express";
+import availabilityController from "../controllers/availability.controller";
+
+const router = Router();
 
 // GET /availability
 router.get("/", (req: any, res: any) => {
   availabilityController.getAvailability(req, res);
 });
 
-module.exports = router;
+// module.exports = router;
+export default router;

@@ -12,28 +12,6 @@ const SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
 ];
 
-// exports.getAuthUrl = () => {
-//   return oauth2Client.generateAuthUrl({
-//     access_type: "offline",
-//     scope: SCOPES,
-//   });
-// };
-
-// exports.getAccessToken = async (code: any) => {
-//   const { tokens } = await oauth2Client.getToken(code);
-//   oauth2Client.setCredentials(tokens);
-//   return tokens;
-// };
-
-// exports.getCalendar = () => {
-//   if (!oauth2Client.credentials) {
-//     throw new Error("No access token found.");
-//   }
-
-//   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
-//   return calendar;
-// };
-
 const getAuthUrl = () => {
   return oauth2Client.generateAuthUrl({
     access_type: "offline",
@@ -59,11 +37,5 @@ const getCalendar = () => {
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
   return calendar;
 };
-
-// module.exports = {
-//   getAuthUrl,
-//   getAccessToken,
-//   getCalendar,
-// };
 
 export { getAuthUrl, getAccessToken, getCalendar, setTokens };

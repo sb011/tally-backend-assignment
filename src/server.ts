@@ -1,29 +1,28 @@
 // Load environment variables
 require("dotenv").config();
 
-const express = require("express");
-const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("../swagger.json");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const { ZodError } = require("zod");
-const availabilityRoutes = require("./routes/availability.routes");
-const authRoutes = require("./routes/auth.routes");
-const meetingRoutes = require("./routes/meeting.routes");
-const cookieParser = require("cookie-parser");
-const authMiddleware = require("./middlewares/auth.middleware");
+import express from "express";
+// import swaggerUi from "swagger-ui-express";
+// import swaggerDocument from "../swagger.json";
+import bodyParser from "body-parser";
+import cors from "cors";
+import { ZodError } from "zod";
+import availabilityRoutes from "./routes/availability.routes";
+import authRoutes from "./routes/auth.routes";
+import meetingRoutes from "./routes/meeting.routes";
+import authMiddleware from "./middlewares/auth.middleware";
 
 // Express server setup and configure port
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
-app.use(cookieParser());
 
 // Set up swagger docs and UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use("/api/auth", authRoutes);

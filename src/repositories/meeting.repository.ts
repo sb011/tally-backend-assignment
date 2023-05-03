@@ -1,7 +1,6 @@
-// const { getCalendar } = require("../utils/calendarConfig");
 import { getCalendar } from "../utils/calendarConfig";
 
-exports.setMeeting = async (
+const setMeeting = async (
   summary: any,
   description: any,
   start: any,
@@ -32,7 +31,7 @@ exports.setMeeting = async (
   }
 };
 
-exports.getMeeting = async () => {
+const getMeeting = async () => {
   try {
     const calendar = getCalendar();
     const response = await calendar.events.list({
@@ -49,7 +48,7 @@ exports.getMeeting = async () => {
   }
 };
 
-exports.getMeetingById = async (id: any) => {
+const getMeetingById = async (id: any) => {
   try {
     const calendar = getCalendar();
     const response = await calendar.events.get({
@@ -61,4 +60,10 @@ exports.getMeetingById = async (id: any) => {
     console.error(error);
     throw new Error("Unable to get calendar event");
   }
+};
+
+export = {
+  setMeeting,
+  getMeeting,
+  getMeetingById,
 };

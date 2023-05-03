@@ -1,17 +1,20 @@
-const meetingrouter = require("express").Router();
-const meetingController = require("../controllers/meeting.controller");
+import { Router } from "express";
+import MeetingController from "../controllers/meeting.controller";
+
+const meetingRouter = Router();
 
 // GET /availability
-meetingrouter.post("/", (req: any, res: any) => {
-  meetingController.setMeeting(req, res);
+meetingRouter.post("/", (req: any, res: any) => {
+  MeetingController.setMeeting(req, res);
 });
 
-meetingrouter.get("/", (req: any, res: any) => {
-  meetingController.getMeeting(req, res);
+meetingRouter.get("/", (req: any, res: any) => {
+  MeetingController.getMeeting(req, res);
 });
 
-meetingrouter.get("/:id", (req: any, res: any) => {
-  meetingController.getMeetingById(req, res);
+meetingRouter.get("/:id", (req: any, res: any) => {
+  MeetingController.getMeetingById(req, res);
 });
 
-module.exports = meetingrouter;
+// module.exports = meetingRouter;
+export default meetingRouter;

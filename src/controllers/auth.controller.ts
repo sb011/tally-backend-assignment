@@ -1,6 +1,7 @@
-const authService = require("../services/auth.service");
+import authService from "../services/auth.service";
+import { ZodError } from "zod";
 
-exports.getAuthUrl = async (req: any, res: any) => {
+const getAuthUrl = async (req: any, res: any) => {
   try {
     const authUrl = await authService.getAuthUrl();
     res.status(200).json(authUrl);
@@ -10,14 +11,22 @@ exports.getAuthUrl = async (req: any, res: any) => {
   }
 };
 
-exports.oauth2callback = async (req: any, res: any) => {
+const oauth2callback = async (req: any, res: any) => {
   try {
     const code = req.query.code as string;
     const tokens = await authService.oauth2callback(code);
-    res.set;
     res.status(200).json(tokens);
   } catch (error) {
     console.error(error);
+    if (error instanceof ZodError) {
+      res.status(400).json({ error: error.issues });
+      return;
+    }
     res.status(500).json({ error: "Internal server error" });
   }
+};
+
+export = {
+  getAuthUrl,
+  oauth2callback,
 };
