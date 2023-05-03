@@ -13,17 +13,20 @@ const getAvailability = async (req: any, res: any) => {
   try {
     const startDate = req.query.startDate as string;
     const endDate = req.query.endDate as string;
+    const email = req.query.email as string;
     const availability = await availabilityService.getAvailability(
       startDate,
-      endDate
+      endDate,
+      email
     );
     res.status(200).json(availability);
   } catch (error: any) {
+    console.log(error);
     if (error instanceof ZodError) {
       res.status(400).json({ error: error });
       return;
-    } else if (error.statusCode) {
-      res.status(error.statusCode).json({ message: error.message });
+    } else if (error.message) {
+      res.status(error.code).json({ message: error.message });
     } else {
       res.status(500).json({ error: "Internal server error" });
     }

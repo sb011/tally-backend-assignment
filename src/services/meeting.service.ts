@@ -1,8 +1,7 @@
-import meetingRepository from "../repositories/meeting.repository";
 import availabilityService from "./availability.service";
 import * as z from "zod";
 import BadRequestException from "../Exceptions/BadRequestException";
-import NotFoundException from "../Exceptions/NotFoundException";
+import { getCalendar } from "../utils/calendarConfig";
 
 /**
  * Meeting schema to validate the meeting object
@@ -10,25 +9,31 @@ import NotFoundException from "../Exceptions/NotFoundException";
  * @property {string} description - Required description of the meeting
  * @property {string} start - Required start date of the meeting in ISO 8601 format
  * @property {string} end - Required end date of the meeting in ISO 8601 format
+ * @property {string} attendees - Required attendees of the meeting
+ * @throws {Error} - If validation fails
+ * @returns {object} - The validated meeting object
  */
 const meetingSchema = z.object({
   summary: z.string({ required_error: "Summary is required" }),
   description: z.string({ required_error: "Description is required" }),
   start: z
     .string({ required_error: "Start date is required" })
-    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, {
+    .regex(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)$/, {
       message: "Invalid start date format. Expected ISO 8601",
     }),
   end: z
     .string({ required_error: "End date is required" })
-    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, {
+    .regex(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)$/, {
       message: "Invalid end date format. Expected ISO 8601",
     }),
+  attendees: z.string({ required_error: "Attendees are required" }),
 });
 
 /**
  * Meeting ID schema to validate the meeting ID
  * @property {string} id - Required ID of the meeting
+ * @throws {Error} - If validation fails
+ * @returns {object} - The validated meeting ID
  */
 const codeSchema = z.string({ required_error: "Meeting id is required" });
 
@@ -45,25 +50,50 @@ const setMeeting = async (
   summary: any,
   description: any,
   start: any,
-  end: any
+  end: any,
+  attendees: any
 ) => {
+  const calendar = getCalendar();
+
   meetingSchema.parse({
     summary,
     description,
     start,
     end,
+    attendees,
   });
 
-  const availability = await availabilityService.getAvailability(start, end);
+  const availability = await availabilityService.getAvailability(
+    start,
+    end,
+    attendees
+  );
   if (availability.length === 0) {
     throw new BadRequestException("No availability for the given dates");
   }
 
-  const event = meetingRepository.setMeeting(summary, description, start, end);
-  if (!event) {
-    throw new BadRequestException("Unable to set meeting");
-  }
-  return event;
+  const event = {
+    summary: summary,
+    description: description,
+    start: {
+      dateTime: start,
+      timeZone: "UTC",
+    },
+    end: {
+      dateTime: end,
+      timeZone: "UTC",
+    },
+    attendees: [{ email: attendees }],
+    reminders: {
+      useDefault: true,
+    },
+  };
+  const response = await calendar.events.insert({
+    calendarId: "primary",
+    resource: event,
+  });
+
+  return response.data;
 };
 
 /**
@@ -72,8 +102,15 @@ const setMeeting = async (
  * @throws {Error} - If unable to get the meeting
  */
 const getMeeting = async () => {
-  const event = meetingRepository.getMeeting();
-  return event;
+  const calendar = getCalendar();
+  const response = await calendar.events.list({
+    calendarId: "primary",
+    timeMin: new Date().toISOString(),
+    maxResults: 10,
+    singleEvents: true,
+    orderBy: "startTime",
+  });
+  return response.data;
 };
 
 /**
@@ -83,13 +120,13 @@ const getMeeting = async () => {
  * @throws {Error} - If unable to get the meeting or validation fails
  */
 const getMeetingById = async (id: any) => {
-  codeSchema.parse(id);
-  const event = meetingRepository.getMeetingById(id);
+  const calendar = getCalendar();
+  const response = await calendar.events.get({
+    calendarId: "primary",
+    eventId: id,
+  });
 
-  if (!event) {
-    throw new NotFoundException("Meeting not found");
-  }
-  return event;
+  return response.data;
 };
 
 export = {

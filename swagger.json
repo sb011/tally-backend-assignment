@@ -97,6 +97,13 @@
             "description": "The end date in ISO 8601 format (e.g. '2022-05-05T17:00').",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "The email address of the user to check availability for.",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -114,6 +121,10 @@
                   "end": {
                     "type": "string",
                     "format": "date-time"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
                   }
                 }
               }
@@ -155,6 +166,10 @@
                 "endTime": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "attendees": {
+                  "type": "string",
+                  "format": "email"
                 }
               }
             }
@@ -182,6 +197,10 @@
                 "endTime": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "attendees": {
+                  "type": "string",
+                  "format": "email"
                 }
               }
             }
@@ -222,6 +241,10 @@
                   "endTime": {
                     "type": "string",
                     "format": "date-time"
+                  },
+                  "attendees": {
+                    "type": "string",
+                    "format": "email"
                   }
                 }
               }
@@ -274,6 +297,10 @@
                     "endTime": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "attendees": {
+                      "type": "string",
+                      "format": "email"
                     }
                   }
                 }

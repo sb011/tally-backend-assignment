@@ -11,12 +11,12 @@ import { ZodError } from "zod";
  */
 const getAuthUrl = async (req: any, res: any) => {
   try {
-    const authUrl = await authService.getAuthUrl();
+    const authUrl = await authService.getAuthUrlFunc();
     res.status(200).json(authUrl);
   } catch (error: any) {
     console.error(error);
-    if (error.statusCode) {
-      res.status(error.statusCode).json({ message: error.message });
+    if (error.message) {
+      res.status(error.code).json({ message: error.message });
     } else {
       res.status(500).json({ error: "Internal server error" });
     }
@@ -42,8 +42,8 @@ const oauth2callback = async (req: any, res: any) => {
     if (error instanceof ZodError) {
       res.status(400).json({ error: error.issues });
       return;
-    } else if (error.statusCode) {
-      res.status(error.statusCode).json({ message: error.message });
+    } else if (error.message) {
+      res.status(error.code).json({ message: error.message });
     } else {
       res.status(500).json({ error: "Internal server error" });
     }
