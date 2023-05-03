@@ -1,6 +1,8 @@
 import meetingRepository from "../repositories/meeting.repository";
 import availabilityService from "./availability.service";
 import * as z from "zod";
+import BadRequestException from "../Exceptions/BadRequestException";
+import NotFoundException from "../Exceptions/NotFoundException";
 
 /**
  * Meeting schema to validate the meeting object
@@ -45,33 +47,23 @@ const setMeeting = async (
   start: any,
   end: any
 ) => {
-  try {
-    meetingSchema.parse({
-      summary,
-      description,
-      start,
-      end,
-    });
+  meetingSchema.parse({
+    summary,
+    description,
+    start,
+    end,
+  });
 
-    const availability = await availabilityService.getAvailability(start, end);
-    if (availability.length === 0) {
-      throw new Error("Unable to set meeting");
-    }
-
-    const event = meetingRepository.setMeeting(
-      summary,
-      description,
-      start,
-      end
-    );
-    return event;
-  } catch (error) {
-    console.error(error);
-    if (error instanceof z.ZodError) {
-      throw error;
-    }
-    throw new Error("Unable to set meeting");
+  const availability = await availabilityService.getAvailability(start, end);
+  if (availability.length === 0) {
+    throw new BadRequestException("No availability for the given dates");
   }
+
+  const event = meetingRepository.setMeeting(summary, description, start, end);
+  if (!event) {
+    throw new BadRequestException("Unable to set meeting");
+  }
+  return event;
 };
 
 /**
@@ -80,13 +72,8 @@ const setMeeting = async (
  * @throws {Error} - If unable to get the meeting
  */
 const getMeeting = async () => {
-  try {
-    const event = meetingRepository.getMeeting();
-    return event;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Unable to get meeting");
-  }
+  const event = meetingRepository.getMeeting();
+  return event;
 };
 
 /**
@@ -96,20 +83,13 @@ const getMeeting = async () => {
  * @throws {Error} - If unable to get the meeting or validation fails
  */
 const getMeetingById = async (id: any) => {
-  try {
-    codeSchema.parse(id);
-    const event = meetingRepository.getMeetingById(id);
-    if (!event) {
-      throw new Error("Unable to get meeting");
-    }
-    return event;
-  } catch (error) {
-    console.error(error);
-    if (error instanceof z.ZodError) {
-      throw error;
-    }
-    throw new Error("Unable to get meeting");
+  codeSchema.parse(id);
+  const event = meetingRepository.getMeetingById(id);
+
+  if (!event) {
+    throw new NotFoundException("Meeting not found");
   }
+  return event;
 };
 
 export = {

@@ -25,22 +25,14 @@ const getAvailabilitySchema = z.object({
  * @throws {ZodError} - If the input values do not conform to the defined schema.
  */
 const getAvailability = async (startDate: string, endDate: string) => {
-  try {
-    // Validate the input values against the defined schema.
-    getAvailabilitySchema.parse({ start: startDate, end: endDate });
+  // Validate the input values against the defined schema.
+  getAvailabilitySchema.parse({ start: startDate, end: endDate });
 
-    const events = await availabilityRepository.getCalendarEvents(
-      startDate,
-      endDate
-    );
-    return events;
-  } catch (error) {
-    console.error(error);
-    if (error instanceof z.ZodError) {
-      throw error;
-    }
-    throw new Error("Unable to get calendar events");
-  }
+  const events = await availabilityRepository.getCalendarEvents(
+    startDate,
+    endDate
+  );
+  return events;
 };
 
 export = {

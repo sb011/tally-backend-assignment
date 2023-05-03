@@ -22,13 +22,16 @@ const setMeeting = async (req: any, res: any) => {
       end
     );
     res.status(200).json(event);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     if (error instanceof ZodError) {
       res.status(400).json({ error: error.issues });
       return;
+    } else if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
     }
-    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -44,9 +47,13 @@ const getMeeting = async (req: any, res: any) => {
   try {
     const event = await meetingService.getMeeting();
     res.status(200).json(event);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 };
 
@@ -63,13 +70,16 @@ const getMeetingById = async (req: any, res: any) => {
     const id = req.params.id as string;
     const event = await meetingService.getMeetingById(id);
     res.status(200).json(event);
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    // console.log(error);
     if (error instanceof ZodError) {
       res.status(400).json({ error: error.issues });
       return;
+    } else if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error" });
     }
-    res.status(500).json({ error: "Internal server error" });
   }
 };
 

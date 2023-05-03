@@ -1,5 +1,6 @@
 import authRepository from "../repositories/auth.repository";
 import { string, ZodError } from "zod";
+import BadRequestException from "../Exceptions/BadRequestException";
 
 // Define a Zod schema for validating the 'code' parameter
 const codeSchema = string({ required_error: "Code is required" });
@@ -12,13 +13,11 @@ const codeSchema = string({ required_error: "Code is required" });
  * @throws {Error} If there is an error getting the authorization URL.
  */
 const getAuthUrl = async () => {
-  try {
-    const authUrl = await authRepository.authUrl();
-    return authUrl;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Unable to get auth URL");
+  const authUrl = await authRepository.authUrl();
+  if (!authUrl) {
+    throw new BadRequestException("Unable to get authorization URL");
   }
+  return authUrl;
 };
 
 /**
@@ -30,18 +29,13 @@ const getAuthUrl = async () => {
  * @throws {ZodError} If the 'code' parameter fails validation against the codeSchema.
  */
 const oauth2callback = async (code: any) => {
-  try {
-    // Validate the 'code' parameter against the codeSchema
-    codeSchema.parse(code);
-    const tokens = await authRepository.oauth2callback(code);
-    return tokens;
-  } catch (error) {
-    console.error(error);
-    if (error instanceof ZodError) {
-      throw error;
-    }
-    throw new Error("Unable to get tokens");
+  // Validate the 'code' parameter against the codeSchema
+  codeSchema.parse(code);
+  const tokens = await authRepository.oauth2callback(code);
+  if (!tokens) {
+    throw new BadRequestException("Unable to get tokens");
   }
+  return tokens;
 };
 
 export = {

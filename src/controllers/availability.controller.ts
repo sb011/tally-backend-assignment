@@ -18,12 +18,15 @@ const getAvailability = async (req: any, res: any) => {
       endDate
     );
     res.status(200).json(availability);
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof ZodError) {
       res.status(400).json({ error: error });
       return;
+    } else if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
     }
-    res.status(500).json({ error: "Internal server error" });
   }
 };
 
